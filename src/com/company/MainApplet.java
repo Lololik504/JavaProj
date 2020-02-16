@@ -60,13 +60,5 @@ public class MainApplet extends JApplet {
         String str = "Time = " + Double.toString(m_time);
         g.drawString(str, 15, 15);
     }
-    public static void main(String[] args)      {
-        JFrame frame = new JFrame("Timer example");
-        MainApplet applet = new MainApplet(true);
-        frame.add(applet);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-    }
+
 }

@@ -2,12 +2,12 @@ package com.company;
 
 import java.util.Random;
 
-public class ConcreteFactory implements AbstractFactory {
+public class CapitalFactory implements AbstractFactory {
 
     @Override
     public House Generate(int P) {
         if (func(P) == 1) {
-            return new WoodenHouse();
+            return new CapitalHouse();
         } else
             return null;
     }

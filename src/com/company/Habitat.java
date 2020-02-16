@@ -4,101 +4,154 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Timer;
+import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.TimerTask;
+import java.util.Timer;
 
 public class Habitat extends JFrame {
     private JPanel panel = new JPanel();
-    private JPanel panel2 = new JPanel();
+
     private Graphics g;
-    private ConcreteFactory Generator;
+    private CapitalFactory capitalFactory = new CapitalFactory();
+    private WoodenFactory woodenFactory = new WoodenFactory();
 
     private static final long serialVersionUID = 1L;
-    private JScrollBar scrollBarP1 = new JScrollBar();
-    private JScrollBar scrollBarP2 = new JScrollBar();
     private JLabel label = null;//Время с начала работы
     private JLabel label2 = null;//Время обновления
-    private JLabel label3 = null;//P1
-    private JLabel label4 = null;//P2
-    private JLabel label5 = null;//Информация о домах
+    private JTextArea area = new JTextArea();
 
     private Timer myTimer;
+    private int N1 = 1;
+    private int N2 = 1;
+    private int P1, P2;
+    private long START_TIME = 0;
+    private long END_TIME = 0;
     private int winWidth = 900;
     private int winHeight = 600;
+    private boolean isRun = false;
     //Массив обьектов
     private int i = 0;
     private int countOfWoodenHouses = 0;
     private int countOfCapitalHouses = 0;
     //P1 - вероятность появления капитального дома, P2 - деревянного
-    private int P1, P2;
-    public ArrayList<House> houses = new ArrayList<House>();
 
+    public Vector<House> houses = new Vector<House>();
+
+    private void StartSimulation() {
+        myTimer = new Timer();
+        myTimer.schedule(new Updater(), 0, 50);
+        myTimer.schedule(new UpdaterForCapitalHouse(), 0, N1*1000);
+        myTimer.schedule(new UpdaterForWoodenHouse(), 0, N2*1000);
+    }
+
+    private class UpdaterForCapitalHouse extends TimerTask {
+        @Override
+        public void run() {
+            Random r = new Random();
+            House tmp = capitalFactory.Generate(P1);
+            if (tmp != null) {
+                countOfCapitalHouses++;
+                tmp.SetX(r.nextInt(winWidth - tmp.GetWidth()*2) + tmp.GetWidth());
+                tmp.SetY(r.nextInt(winHeight - tmp.GetHeight()*2) + tmp.GetHeight());
+                AddHouse(tmp);
+            }
+        }
+    }
+
+    private class UpdaterForWoodenHouse extends TimerTask {
+        @Override
+        public void run() {
+            Random r = new Random();
+            House tmp = woodenFactory.Generate(P1);
+            if (tmp != null) {
+                countOfWoodenHouses++;
+                tmp.SetX(r.nextInt(winWidth - tmp.GetWidth()*2) + tmp.GetWidth());
+                tmp.SetY(r.nextInt(winHeight - tmp.GetHeight()*2) + tmp.GetHeight());
+                AddHouse(tmp);
+            }
+        }
+    }
 
     public Habitat() {
         super("Laba 1");
-        { label = new JLabel(String.format("Время с начала 0"));
-        label2 = new JLabel(String.format("Время обновления 0"));
-        label3 = new JLabel(String.format("%d", scrollBarP1.getValue()));
-        label4 = new JLabel(String.format("%d", scrollBarP2.getValue()));
-        label5 = new JLabel(String.format("Количество капитальных домов: %d, количество деревянных домов: %d, всего домов: %d",
-                countOfCapitalHouses,
-                countOfWoodenHouses,
-                i));}
-        P1 = 40;
-        P2 = 56;
-        Generator = new ConcreteFactory();
         addWindow();
-        myTimer = new Timer();
-        myTimer.schedule(new Updater(), 0, 100);
-        myTimer.schedule(new UpdaterForHouse(), 0, 1000);
-
-
-        //Создание и запуск тиков таймера
-
+        g = this.getGraphics();
+        P1 = 20;
+        P2 = 35;
+        N1 = N2 = 1;
+        WoodenHouse.SetImage();
+        CapitalHouse.SetImage();
+        {
+            label = new JLabel(String.format("Время с начала 0"));
+            label2 = new JLabel(String.format("Время обновления 0"));
+        }
+        area.setBounds(0, this.getHeight() - 100, 250, 100);
+        area.setBackground(Color.WHITE);
+        area.setFocusable(false);
+        area.setVisible(true);
+        this.add(area);
         AddWindowListener();
         AddPanelsToWindow();
         AddComponentsToLeftPanel();
         //Window.add(new Picture());
-        g = panel.getGraphics();
-
     }
 
     private void AddHouse(House tmp) {
-        houses.add(i, tmp);
+        houses.add(tmp);
+
         i++;
     }
 
-    private void CheckHouse() {
-        House tmp = Generator.Generate(P1);
-        if (tmp != null) {
-            AddHouse(tmp);
-            countOfCapitalHouses++;
-        }
-        tmp = Generator.Generate(P2);
-        if (tmp != null) {
-            countOfWoodenHouses++;
-            AddHouse(tmp);
+
+    @Override
+    public void paint(Graphics g) {
+        //super.paint(g);
+        if (houses != null) {
+            for (House house : houses) {
+                this.add(house);
+                house.setVisible(true);
+                this.setVisible(true);
+            }
         }
     }
 
     public void Update(double workTime, double frameTime) {
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        label.setText(String.format("Время с начала работы %f", workTime));
-        label2.setText(String.format("Время обновления %f", frameTime));
-        label3.setText(String.format("P1: %d", scrollBarP1.getValue()));
-        label4.setText(String.format("P2: %d", scrollBarP2.getValue()));
-        P1 = scrollBarP1.getValue();
-        P2 = scrollBarP2.getValue();
-        label5.setText(String.format("Количество капитальных домов: %d, количество деревянных домов: %d, всего домов: %d",
+        winHeight = this.getHeight();
+        winWidth = this.getWidth();
+        //this.paintAll(g);
+        area.setText(String.format("Количество капитальных домов: %d\nколичество деревянных домов: %d\nвсего домов: %d",
                 countOfCapitalHouses,
                 countOfWoodenHouses,
                 i));
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        label.setText(String.format("Время с начала работы %f", workTime));
+        label2.setText(String.format("Время обновления %f", frameTime));
+        paint(g);
+        //this.repaint();
+        // this.paintAll(g);
+    }
+
+    private void EndSimulation() {
+        myTimer.cancel();
+        isRun = false;
+        String EndString = "Программа завершила работу\nВремя работы:";
+        EndString += END_TIME - START_TIME;
+        EndString += "\nКоличество деревянных домов: ";
+        EndString += countOfWoodenHouses;
+        EndString += "\nКоличество капитальных домов: ";
+        EndString += countOfCapitalHouses;
+        for (House house : houses) {
+            house.setVisible(false);
+            this.remove(house);
+        }
+        houses.clear();
+        countOfWoodenHouses = 0;
+        countOfCapitalHouses = 0;
+        i = 0;
     }
 
     private void addWindow() {
@@ -111,83 +164,41 @@ public class Habitat extends JFrame {
         this.setVisible(true);
     }
 
-    static class Picture extends JComponent {
-
-        protected void paintComponent(Graphics g) {
-            double SIZE = 0.2;
-            Graphics2D g2 = (Graphics2D) g;
-            String filename = "src/pictures/wooden/1.jpg";
-            BufferedImage image = null;
-            try {
-                image = ImageIO.read(new File("src/pictures/capital/1.jpg"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            BufferedImage imageToChange = new BufferedImage((int) (image.getWidth() * SIZE), (int) (image.getHeight() * SIZE), image.getType());
-            AffineTransform affineTransform = AffineTransform.getScaleInstance(SIZE, SIZE);
-            BufferedImageOp op = new AffineTransformOp(affineTransform, AffineTransformOp.TYPE_BICUBIC);
-            op.filter(image, imageToChange);
-            g2.setBackground(Color.WHITE);
-            g2.drawImage(imageToChange, 0, 0, null);
-        }
-
-    }
-
-    private class Updater extends TimerTask {
+    public class Updater extends TimerTask {
         // Первый ли запуск метода run()?
         private boolean m_firstRun = true;
-        // Время начала
-        private long m_startTime = 0;
-        // Время последнего обновления
-        private long m_lastTime = 0;
 
         @Override
         public void run() {
             if (m_firstRun) {
-                m_startTime = System.currentTimeMillis();
-                m_lastTime = m_startTime;
+                START_TIME = System.currentTimeMillis();
+                END_TIME = START_TIME;
                 m_firstRun = false;
             }
             long currentTime = System.currentTimeMillis();
             // Время, прошедшее от начала, в секундах
-            double elapsed = (currentTime - m_startTime) / 1000.0;
+            double elapsed = (currentTime - START_TIME) / 1000.0;
             // Время, прошедшее с последнего обновления, в секундах
-            double frameTime = (currentTime - m_lastTime) / 1000.0;
+            double frameTime = (currentTime - END_TIME) / 1000.0;
             // Вызываем обновление
             Update(elapsed, frameTime);
-            m_lastTime = currentTime;
+            END_TIME = currentTime;
         }
 
 
     }
 
-    private class UpdaterForHouse extends TimerTask {
-        @Override
-        public void run() {
 
-            CheckHouse();
-        }
-    }
 
     private void AddComponentsToLeftPanel() {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel2.setLayout(new BoxLayout(panel2, BoxLayout.X_AXIS));
         panel.add(label);
         panel.add(label2);
-        scrollBarP1.setMaximum(110);
-        scrollBarP2.setMaximum(110);
-        panel2.add(scrollBarP1);
-        panel2.add(label3);
-        panel2.add(scrollBarP2);
-        panel2.add(label4);
-        panel.add(label5);
-
     }
 
     private void AddPanelsToWindow() {
         this.setLayout(new BorderLayout());
-        this.add(panel,BorderLayout.WEST);
-        this.add(panel2,BorderLayout.EAST);
+        this.add(panel, BorderLayout.WEST);
     }
 
     private void AddWindowListener() {
@@ -201,17 +212,26 @@ public class Habitat extends JFrame {
             public void keyPressed(KeyEvent e) {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_E:
-
                         System.out.println("E is Pressed");
+                        if (isRun = true)
+                            EndSimulation();
                         break;
                     case KeyEvent.VK_B:
-
                         System.out.println("B is Pressed");
+                        if (!isRun) {
+                            isRun = true;
+                            StartSimulation();
+                        }
+
                         break;
                     case KeyEvent.VK_T:
-                        if (panel.isVisible())
+                        if (panel.isVisible()) {
                             panel.setVisible(false);
-                        else panel.setVisible(true);
+                            area.setVisible(false);
+                        } else {
+                            panel.setVisible(true);
+                            area.setVisible(true);
+                        }
                         System.out.println("T is Pressed");
                         break;
                 }
