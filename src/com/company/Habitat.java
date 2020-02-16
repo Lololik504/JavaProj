@@ -1,11 +1,6 @@
 package com.company;
 
-import java.awt.geom.AffineTransform;
-import java.awt.image.*;
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -30,6 +25,7 @@ public class Habitat extends JFrame {
     private int P1, P2;
     private long START_TIME = 0;
     private long END_TIME = 0;
+    private double WORK_TIME = 0;
     private int winWidth = 900;
     private int winHeight = 600;
     private boolean isRun = false;
@@ -37,6 +33,7 @@ public class Habitat extends JFrame {
     private int i = 0;
     private int countOfWoodenHouses = 0;
     private int countOfCapitalHouses = 0;
+
     //P1 - вероятность появления капитального дома, P2 - деревянного
 
     public Vector<House> houses = new Vector<House>();
@@ -66,7 +63,7 @@ public class Habitat extends JFrame {
         @Override
         public void run() {
             Random r = new Random();
-            House tmp = woodenFactory.Generate(P1);
+            House tmp = woodenFactory.Generate(P2);
             if (tmp != null) {
                 countOfWoodenHouses++;
                 tmp.SetX(r.nextInt(winWidth - tmp.GetWidth()*2) + tmp.GetWidth());
@@ -106,7 +103,6 @@ public class Habitat extends JFrame {
         i++;
     }
 
-
     @Override
     public void paint(Graphics g) {
         //super.paint(g);
@@ -128,7 +124,7 @@ public class Habitat extends JFrame {
                 countOfWoodenHouses,
                 i));
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        label.setText(String.format("Время с начала работы %f", workTime));
+        label.setText(String.format("Время с начала работы %f", workTime + WORK_TIME));
         label2.setText(String.format("Время обновления %f", frameTime));
         paint(g);
         //this.repaint();
@@ -138,12 +134,7 @@ public class Habitat extends JFrame {
     private void EndSimulation() {
         myTimer.cancel();
         isRun = false;
-        String EndString = "Программа завершила работу\nВремя работы:";
-        EndString += END_TIME - START_TIME;
-        EndString += "\nКоличество деревянных домов: ";
-        EndString += countOfWoodenHouses;
-        EndString += "\nКоличество капитальных домов: ";
-        EndString += countOfCapitalHouses;
+
         for (House house : houses) {
             house.setVisible(false);
             this.remove(house);
@@ -151,7 +142,14 @@ public class Habitat extends JFrame {
         houses.clear();
         countOfWoodenHouses = 0;
         countOfCapitalHouses = 0;
+        WORK_TIME = 0;
         i = 0;
+    }
+
+    private void PauseSimulation(){
+        myTimer.cancel();
+        isRun = false;
+        WORK_TIME += ((double)(END_TIME - START_TIME))/1000;
     }
 
     private void addWindow() {
@@ -165,6 +163,7 @@ public class Habitat extends JFrame {
     }
 
     public class Updater extends TimerTask {
+
         // Первый ли запуск метода run()?
         private boolean m_firstRun = true;
 
@@ -187,8 +186,6 @@ public class Habitat extends JFrame {
 
 
     }
-
-
 
     private void AddComponentsToLeftPanel() {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -222,7 +219,13 @@ public class Habitat extends JFrame {
                             isRun = true;
                             StartSimulation();
                         }
-
+                        break;
+                    case KeyEvent.VK_P:
+                        System.out.println("P is Pressed");
+                        if (isRun) {
+                            isRun = false;
+                            PauseSimulation();
+                        }
                         break;
                     case KeyEvent.VK_T:
                         if (panel.isVisible()) {
@@ -233,6 +236,9 @@ public class Habitat extends JFrame {
                             area.setVisible(true);
                         }
                         System.out.println("T is Pressed");
+                        break;
+                    default:
+                        System.out.println(e.getKeyChar() + " is Pressed");
                         break;
                 }
             }
