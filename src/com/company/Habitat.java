@@ -8,41 +8,40 @@ import java.awt.event.KeyListener;
 import java.util.Timer;
 
 public class Habitat extends JFrame {
+    private int N1 = 1;
+    private int N2 = 1;
+    private int P1, P2;
+    //P1 - вероятность появления капитального дома, P2 - деревянного
+    private int winWidth = 900;
+    private int winHeight = 600;
+
+    private Timer myTimer;
     private JPanel panel = new JPanel();
+    private JLabel label = null;//Время с начала работы
+    private JLabel label2 = null;//Время обновления
+    private JTextArea area = new JTextArea();
 
     private Graphics g;
     private CapitalFactory capitalFactory = new CapitalFactory();
     private WoodenFactory woodenFactory = new WoodenFactory();
 
-    private static final long serialVersionUID = 1L;
-    private JLabel label = null;//Время с начала работы
-    private JLabel label2 = null;//Время обновления
-    private JTextArea area = new JTextArea();
-
-    private Timer myTimer;
-    private int N1 = 1;
-    private int N2 = 1;
-    private int P1, P2;
-    private long START_TIME = 0;
-    private long END_TIME = 0;
-    private double WORK_TIME = 0;
-    private int winWidth = 900;
-    private int winHeight = 600;
     private boolean isRun = false;
     //Массив обьектов
     private int i = 0;
+    private long START_TIME = 0;
+    private long END_TIME = 0;
+    private double WORK_TIME = 0;
+
     private int countOfWoodenHouses = 0;
     private int countOfCapitalHouses = 0;
-
-    //P1 - вероятность появления капитального дома, P2 - деревянного
-
-    public Vector<House> houses = new Vector<House>();
+    private static final long serialVersionUID = 1L;
 
     private void StartSimulation() {
+        isRun = true;
         myTimer = new Timer();
         myTimer.schedule(new Updater(), 0, 50);
-        myTimer.schedule(new UpdaterForCapitalHouse(), 0, N1*1000);
-        myTimer.schedule(new UpdaterForWoodenHouse(), 0, N2*1000);
+        myTimer.schedule(new UpdaterForCapitalHouse(), 0, N1 * 1000);
+        myTimer.schedule(new UpdaterForWoodenHouse(), 0, N2 * 1000);
     }
 
     private class UpdaterForCapitalHouse extends TimerTask {
@@ -52,8 +51,8 @@ public class Habitat extends JFrame {
             House tmp = capitalFactory.Generate(P1);
             if (tmp != null) {
                 countOfCapitalHouses++;
-                tmp.SetX(r.nextInt(winWidth - tmp.GetWidth()*2) + tmp.GetWidth());
-                tmp.SetY(r.nextInt(winHeight - tmp.GetHeight()*2) + tmp.GetHeight());
+                tmp.SetX(r.nextInt(winWidth - tmp.GetWidth() * 2) + tmp.GetWidth());
+                tmp.SetY(r.nextInt(winHeight - tmp.GetHeight() * 2) + tmp.GetHeight());
                 AddHouse(tmp);
             }
         }
@@ -66,8 +65,8 @@ public class Habitat extends JFrame {
             House tmp = woodenFactory.Generate(P2);
             if (tmp != null) {
                 countOfWoodenHouses++;
-                tmp.SetX(r.nextInt(winWidth - tmp.GetWidth()*2) + tmp.GetWidth());
-                tmp.SetY(r.nextInt(winHeight - tmp.GetHeight()*2) + tmp.GetHeight());
+                tmp.SetX(r.nextInt(winWidth - tmp.GetWidth() * 2) + tmp.GetWidth());
+                tmp.SetY(r.nextInt(winHeight - tmp.GetHeight() * 2) + tmp.GetHeight());
                 AddHouse(tmp);
             }
         }
@@ -98,16 +97,15 @@ public class Habitat extends JFrame {
     }
 
     private void AddHouse(House tmp) {
-        houses.add(tmp);
-
+        SingleVector.add(tmp);
         i++;
     }
 
     @Override
     public void paint(Graphics g) {
         //super.paint(g);
-        if (houses != null) {
-            for (House house : houses) {
+        if (SingleVector.getVector() != null) {
+            for (House house : SingleVector.getVector()) {
                 this.add(house);
                 house.setVisible(true);
                 this.setVisible(true);
@@ -135,21 +133,22 @@ public class Habitat extends JFrame {
         myTimer.cancel();
         isRun = false;
 
-        for (House house : houses) {
+        for (House house : SingleVector.getVector()) {
             house.setVisible(false);
             this.remove(house);
         }
-        houses.clear();
+        SingleVector.getVector().clear();
         countOfWoodenHouses = 0;
         countOfCapitalHouses = 0;
         WORK_TIME = 0;
         i = 0;
     }
 
-    private void PauseSimulation(){
+    private void PauseSimulation() {
+        isRun = false;
         myTimer.cancel();
         isRun = false;
-        WORK_TIME += ((double)(END_TIME - START_TIME))/1000;
+        WORK_TIME += ((double) (END_TIME - START_TIME)) / 1000;
     }
 
     private void addWindow() {
@@ -202,7 +201,6 @@ public class Habitat extends JFrame {
         this.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
-
             }
 
             @Override
@@ -216,14 +214,12 @@ public class Habitat extends JFrame {
                     case KeyEvent.VK_B:
                         System.out.println("B is Pressed");
                         if (!isRun) {
-                            isRun = true;
                             StartSimulation();
                         }
                         break;
                     case KeyEvent.VK_P:
                         System.out.println("P is Pressed");
                         if (isRun) {
-                            isRun = false;
                             PauseSimulation();
                         }
                         break;
