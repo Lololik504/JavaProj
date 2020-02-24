@@ -2,7 +2,7 @@ package com.company;
 
 import java.util.Vector;
 
-public class  SingleVector {
+public class SingleVector {
     private static SingleVector singleVector;
     private static Vector<House> vector = new Vector<House>();
 

@@ -27,7 +27,7 @@ public class WoodenHouse extends House {
 
     public static void SetImage() {
         try {
-            img = ImageIO.read(new File("src/pictures/wooden/1.jpg"));
+            img = ImageIO.read(new File("src/pictures/wooden/1.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -47,6 +47,11 @@ public class WoodenHouse extends House {
     @Override
     public void SetY(int y) {
         this.y = y;
+    }
+
+    @Override
+    public void Draw(Graphics g) {
+        g.drawImage(img,x,y,null);
     }
 
     @Override

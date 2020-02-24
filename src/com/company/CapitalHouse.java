@@ -29,7 +29,7 @@ public class CapitalHouse extends House {
 
     public static void SetImage() {
         try {
-            img = ImageIO.read(new File("src/pictures/capital/1.jpg"));
+            img = ImageIO.read(new File("src/pictures/capital/1.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -49,7 +49,14 @@ public class CapitalHouse extends House {
         this.y = y;
     }
 
+    @Override
+    public void Draw(Graphics g) {
+        g.drawImage(img,x,y,null);
+    }
+
     public int GetHeight() {
         return img.getHeight(null);
     }
+
+
 }
