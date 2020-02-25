@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Random;
 
 public class CapitalHouse extends House {
-    private static BufferedImage img;
+    private static Image img;
     public static int count;
     CapitalHouse() {
         x = 0;

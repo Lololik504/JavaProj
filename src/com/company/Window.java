@@ -7,6 +7,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.util.Vector;
 
 public class Window extends JFrame {
@@ -17,6 +18,7 @@ public class Window extends JFrame {
 
     public Window(Habitat habitat) {
         super("Laba 1");
+
         habit = habitat;
         addWindow();
         AddWindowListener();
@@ -25,11 +27,28 @@ public class Window extends JFrame {
     class MainPanel extends JPanel {
         JPanel panelForLabels = new JPanel();
         JPanel panelForButtons = new JPanel();
-        JButton stopButton = new JButton();
-        JButton startButton = new JButton();
-        JButton confirmButton = new JButton();
-        public void MainPanel() {
+        JButton stopButton = new JButton("STOP");
+        JButton startButton = new JButton("START");
+        JButton confirmButton = new JButton("CONFIRM");
 
+        public MainPanel() {
+            panelForLabels.setLayout(new BoxLayout(panelForLabels, BoxLayout.Y_AXIS));
+            GridBagLayout gbl = new GridBagLayout();
+            GridBagConstraints c = new GridBagConstraints();
+            panelForButtons.setLayout(gbl);
+            c.anchor = GridBagConstraints.SOUTHEAST;
+            c.fill   = GridBagConstraints.NONE;
+            c.gridheight = 1;
+            c.gridwidth  = 1;
+            c.gridx = GridBagConstraints.RELATIVE;
+            c.gridy = GridBagConstraints.RELATIVE;
+            c.insets = new Insets(10, 10, 0, 0);
+            gbl.setConstraints(panelForLabels,c);
+            panelForButtons.add(stopButton);
+            panelForButtons.add(startButton);
+            panelForButtons.add(confirmButton);
+            this.add(panelForLabels);
+            this.add(panelForButtons);
         }
     }
 
@@ -38,6 +57,8 @@ public class Window extends JFrame {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setMinimumSize(new Dimension(300, 300));
         this.setVisible(true);
+        this.add(mainPanel,BorderLayout.WEST);
+        mainPanel.setFocusable(false);
     }
 
     public void setHabitat(Habitat habitat) {
@@ -45,13 +66,13 @@ public class Window extends JFrame {
     }
 
     @Override
-    public synchronized void paint(Graphics g) {
+    public void paint(Graphics g) {
         super.paint(g);
-        Image buff;
-        buff = createImage(getWidth(),getHeight());
-        Graphics BufferGraphics = buff.getGraphics();
-        SingleVector.getSingleVector().drawHouses(BufferGraphics);
-        g.drawImage(buff,0,0,null);
+//        Graphics2D g2 = (Graphics2D)getContentPane().getGraphics();
+//        BufferedImage bufferedImage = new BufferedImage(getWidth(),getHeight(),BufferedImage.TYPE_INT_ARGB);
+//        Graphics2D g2Buf = bufferedImage.createGraphics();
+//        SingleVector.getSingleVector().drawHouses(g2Buf);
+//        g2.drawImage(bufferedImage,0,0,this);
     }
 
     private void AddWindowListener() {

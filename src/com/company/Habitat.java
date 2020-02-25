@@ -6,12 +6,24 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Timer;
 
+import static java.lang.String.*;
+
 public class Habitat {
+    class PanelForImages extends JPanel {
+        @Override
+        protected void paintComponent(Graphics g) {
+            SingleVector.getSingleVector().drawHouses(g);
+        }
+    }
+
+    PanelForImages panelForImages = new PanelForImages();
     private JPanel panel = new JPanel();
     private JPanel panel2 = new JPanel();
-    private JTextArea area = new JTextArea();
-    private JLabel label = new JLabel();
-    private JLabel label2 = new JLabel();
+    private JLabel runTimeLabel = new JLabel();
+    private JLabel updateTimeLabel = new JLabel();
+    private JLabel woodHousesLabel = new JLabel();
+    private JLabel capitalHousesLabel = new JLabel();
+    private JLabel totalHousesLabel = new JLabel();
     private Window window;
 
     private int P1 = 5;
@@ -39,7 +51,7 @@ public class Habitat {
     public void StartSimulation() {
         isRun = true;
         myTimer = new Timer();
-        myTimer.schedule(new Updater(), 0, 100);
+        myTimer.schedule(new Updater(), 0, 20);
     }
 
     public void ShowOrHide() {
@@ -50,7 +62,7 @@ public class Habitat {
             panel.setVisible(true);
             panel2.setVisible(true);
         }
-        //window.repaint(panel.getX(), panel.getY(), panel.getWidth(), panel.getWidth());
+
     }
 
     public Habitat(int P1, int P2, int T1, int T2) {
@@ -64,52 +76,38 @@ public class Habitat {
         WoodenHouse.SetImage();
         CapitalHouse.SetImage();
 
-        area.setFocusable(false);
-        area.setVisible(true);
-
-        label.setVisible(true);
-        label2.setVisible(true);
-
-        label.setText("Время с начала работы 0");
-        label2.setText("Время обновления 0");
+        runTimeLabel.setText("Время с начала работы 0");
+        updateTimeLabel.setText("Время обновления 0");
+        woodHousesLabel.setText("Количество деревянных домов: 0");
+        capitalHousesLabel.setText("Количество капитальных домов: 0");
+        totalHousesLabel.setText("Всего домов: 0");
 
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel2.setLayout(new BorderLayout());
 
-        panel.add(label);
-        panel.add(label2);
+        panel.add(runTimeLabel);
+        panel.add(updateTimeLabel);
+        panel.add(woodHousesLabel);
+        panel.add(capitalHousesLabel);
+        panel.add(totalHousesLabel);
 
-        area.setText(String.format("Количество капитальных домов: %d\nКоличество деревянных домов: %d\nВсего домов: %d",
-                countOfCapitalHouses,
-                countOfWoodenHouses,
-                i));
-        panel2.add(area, BorderLayout.NORTH);
-        //panel.setBounds(0, 0, 300, 30);
-        //panel2.setBounds(0, window.getHeight() - area.getHeight(), 250, area.getHeight());
-        window.add(panel, BorderLayout.NORTH);
-        window.add(panel2, BorderLayout.SOUTH);
+//        window.add(panel, BorderLayout.NORTH);
+//        panelForImages.setVisible(true);
+//        window.add(panelForImages);
         window.validate();
     }
 
     private void AddHouse(House tmp) {
         SingleVector.getSingleVector().add(tmp);
-        //tmp.Draw(window.getContentPane().getGraphics());
-       // window.repaint();
         i++;
     }
 
-
     public void Update(double workTime, double frameTime) {
-
-        //panel2.setBounds(0, window.getHeight() - area.getHeight() - 40, 250, area.getHeight());
-        area.setText(String.format("Количество капитальных домов: %d\nколичество деревянных домов: %d\nвсего домов: %d",
-                countOfCapitalHouses,
-                countOfWoodenHouses,
-                i));
-        label.setText(String.format("Время с начала работы %.2f", workTime + WORK_TIME));
-        label2.setText(String.format("Время обновления %.2f", frameTime));
-
         window.repaint();
+        runTimeLabel.setText(format("Время с начала работы %.2f", workTime + WORK_TIME));
+        updateTimeLabel.setText(format("Время обновления %.2f", frameTime));
+        woodHousesLabel.setText(format("Количество деревянных домов: %d", countOfWoodenHouses));
+        capitalHousesLabel.setText(format("Количество капитальных домов: %d", countOfCapitalHouses));
+        totalHousesLabel.setText(format("Всего домов: %d", i));
     }
 
     public void EndSimulation() {
@@ -149,8 +147,8 @@ public class Habitat {
                 House tmp = capitalFactory.Generate(P1);
                 if (tmp != null) {
                     countOfCapitalHouses++;
-                    tmp.SetX(r.nextInt(window.getWidth() - tmp.GetWidth() * 2) + tmp.GetWidth());
-                    tmp.SetY(r.nextInt(window.getHeight() - tmp.GetHeight() * 2) + tmp.GetHeight());
+                    tmp.SetX(r.nextInt(window.getWidth() - tmp.GetWidth() * 2));
+                    tmp.SetY(r.nextInt(window.getHeight() - tmp.GetHeight() * 2));
                     AddHouse(tmp);
                 }
             }
@@ -159,9 +157,9 @@ public class Habitat {
                 LAST_WOOD_TIME = currentTime;
                 House tmp = woodenFactory.Generate(P2);
                 if (tmp != null) {
-                    countOfCapitalHouses++;
-                    tmp.SetX(r.nextInt(window.getWidth() - tmp.GetWidth() * 2) + tmp.GetWidth());
-                    tmp.SetY(r.nextInt(window.getHeight() - tmp.GetHeight() * 2) + tmp.GetHeight());
+                    countOfWoodenHouses++;
+                    tmp.SetX(r.nextInt(window.getWidth() - tmp.GetWidth() * 2));
+                    tmp.SetY(r.nextInt(window.getHeight() - tmp.GetHeight() * 2));
                     AddHouse(tmp);
                 }
             }
