@@ -8,15 +8,16 @@ import java.util.Timer;
 
 public class Habitat {
     private JPanel panel = new JPanel();
+    private JPanel panel2 = new JPanel();
     private JTextArea area = new JTextArea();
     private JLabel label = new JLabel();
     private JLabel label2 = new JLabel();
     Window window;
 
-    private int P1 = 50;
-    private int P2 = 100;
-    private int N2 = 1;
-    private int N1 = 1;
+    private int P1 = 5;
+    private int P2 = 10;
+    private int N2 = 100;
+    private int N1 = 100;
 
     //private Graphics g;
     private CapitalFactory capitalFactory = new CapitalFactory();
@@ -37,9 +38,9 @@ public class Habitat {
     public void StartSimulation() {
         isRun = true;
         myTimer = new Timer();
-        myTimer.schedule(new Updater(), 0, 50);
-        myTimer.schedule(new UpdaterForCapitalHouse(), 0, N1 * 1000);
-        myTimer.schedule(new UpdaterForWoodenHouse(), 0, N2 * 1000);
+        myTimer.schedule(new Updater(), 0, 20);
+        myTimer.schedule(new UpdaterForCapitalHouse(), 0, N1);
+        myTimer.schedule(new UpdaterForWoodenHouse(), 0, N2);
     }
 
     private class UpdaterForCapitalHouse extends TimerTask {
@@ -72,47 +73,72 @@ public class Habitat {
     }
 
     public void ShowOrHide() {
-        if (label.isVisible()) {
-            label.setVisible(false);
-            label2.setVisible(false);
+        if (panel.isVisible()) {
+            panel.setVisible(false);
+            panel2.setVisible(false);
         } else {
-            label.setVisible(true);
-            label2.setVisible(true);
+            panel.setVisible(true);
+            panel2.setVisible(true);
         }
-        window.repaint();
+        //window.update(window.getGraphics());
+        window.repaint(panel.getX(), panel.getY(), panel.getWidth(), panel.getWidth());
+        //window.repaint(panel2.getX(),panel2.getY(),panel2.getWidth(),panel2.getWidth());
     }
 
     public Habitat() {
         window = new Window(this);
         window.addWindow();
-        window.setLayout(new BorderLayout());
-        window.add(label,BorderLayout.NORTH);
-        label.setVisible(true);
-        label.setText(String.format("Время с начала работы 0"));
-        label.setBounds(0,0,300,100);
-        label.paint(window.getGraphics());
+        window.setLayout(null);
         WoodenHouse.SetImage();
         CapitalHouse.SetImage();
+
+        area.setFocusable(false);
+        area.setVisible(true);
+
+        label.setVisible(true);
+        label2.setVisible(true);
+
+        label.setText("Время с начала работы 0");
+        label2.setText("Время обновления 0");
+
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel2.setLayout(new BorderLayout());
+
+        panel.add(label);
+        panel.add(label2);
+
+        area.setText(String.format("Количество капитальных домов: %d\nКоличество деревянных домов: %d\nВсего домов: %d",
+                countOfCapitalHouses,
+                countOfWoodenHouses,
+                i));
+        panel2.add(area, BorderLayout.NORTH);
+        panel.setBounds(0, 0, 300, 30);
+        panel2.setBounds(0, window.getHeight() - area.getHeight(), 250, area.getHeight());
+        window.add(panel);
+        window.add(panel2);
+        window.validate();
+        //window.paint(window.getGraphics());
     }
 
     private void AddHouse(House tmp) {
         SingleVector.add(tmp);
+        window.add(tmp);
+        //window.update(window.getGraphics());
         tmp.Draw(window.getGraphics());
-        //window.add(tmp);
+
         i++;
     }
 
 
     public void Update(double workTime, double frameTime) {
-
+        panel2.setBounds(0, window.getHeight() - area.getHeight() - 40, 250, area.getHeight());
         area.setText(String.format("Количество капитальных домов: %d\nколичество деревянных домов: %d\nвсего домов: %d",
                 countOfCapitalHouses,
                 countOfWoodenHouses,
                 i));
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         label.setText(String.format("Время с начала работы %f", workTime + WORK_TIME));
         label2.setText(String.format("Время обновления %f", frameTime));
-        // window.repaint();
+
     }
 
     public void EndSimulation() {

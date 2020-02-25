@@ -12,12 +12,8 @@ public class WoodenFactory implements AbstractFactory {
     }
 
     private static int func(int P) {
-        Random r = new Random();
-        int i = r.nextInt(100);
-        if (i < P) {
+        if (Math.random()*100 < P) {
             return 1;
-        } else if (i >= P && i < 100) {
-            return 2;
-        } else return 0;
+        } else return 2;
     }
 }

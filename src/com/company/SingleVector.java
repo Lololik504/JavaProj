@@ -4,7 +4,7 @@ import java.util.Vector;
 
 public class SingleVector {
     private static SingleVector singleVector;
-    private static Vector<House> vector = new Vector<House>();
+    private static Vector<House> vector = new Vector<>();
 
     public static SingleVector getSingleVector() {
         if (singleVector == null)
@@ -12,11 +12,11 @@ public class SingleVector {
         return singleVector;
     }
 
-    public static void add(House house){
+    public synchronized static void add(House house){
         vector.add(house);
     }
 
-    public static Vector<House> getVector(){
+    public synchronized static Vector<House> getVector(){
         return vector;
     }
 }
