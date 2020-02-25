@@ -1,10 +1,10 @@
 package com.company;
 
+import java.awt.image.BufferedImage;
 import java.util.*;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Timer;
-
 
 public class Habitat {
     private JPanel panel = new JPanel();
@@ -12,7 +12,7 @@ public class Habitat {
     private JTextArea area = new JTextArea();
     private JLabel label = new JLabel();
     private JLabel label2 = new JLabel();
-    Window window;
+    private Window window;
 
     private int P1 = 5;
     private int P2 = 10;
@@ -27,6 +27,8 @@ public class Habitat {
     private int i = 0;
     private long START_TIME = 0;
     private long END_TIME = 0;
+    private long LAST_CAP_TIME = 0;
+    private long LAST_WOOD_TIME = 0;
     private double WORK_TIME = 0;
     private Timer myTimer;
 
@@ -34,42 +36,10 @@ public class Habitat {
     private int countOfCapitalHouses = 0;
     private static final long serialVersionUID = 1L;
 
-
     public void StartSimulation() {
         isRun = true;
         myTimer = new Timer();
-        myTimer.schedule(new Updater(), 0, 20);
-        myTimer.schedule(new UpdaterForCapitalHouse(), 0, N1);
-        myTimer.schedule(new UpdaterForWoodenHouse(), 0, N2);
-    }
-
-    private class UpdaterForCapitalHouse extends TimerTask {
-        @Override
-        public void run() {
-            Random r = new Random();
-            House tmp = capitalFactory.Generate(P1);
-            if (tmp != null) {
-                countOfCapitalHouses++;
-                tmp.SetX(r.nextInt(window.getWidth() - tmp.GetWidth() * 2) + tmp.GetWidth());
-                tmp.SetY(r.nextInt(window.getHeight() - tmp.GetHeight() * 2) + tmp.GetHeight());
-                AddHouse(tmp);
-            }
-        }
-    }
-
-    private class UpdaterForWoodenHouse extends TimerTask {
-        @Override
-        public void run() {
-            Random r = new Random();
-            House tmp = woodenFactory.Generate(P2);
-            if (tmp != null) {
-                countOfWoodenHouses++;
-
-                tmp.SetX(r.nextInt(window.getWidth() - tmp.GetWidth()));
-                tmp.SetY(r.nextInt(window.getHeight() - tmp.GetHeight()));
-                AddHouse(tmp);
-            }
-        }
+        myTimer.schedule(new Updater(), 0, 100);
     }
 
     public void ShowOrHide() {
@@ -80,15 +50,17 @@ public class Habitat {
             panel.setVisible(true);
             panel2.setVisible(true);
         }
-        //window.update(window.getGraphics());
-        window.repaint(panel.getX(), panel.getY(), panel.getWidth(), panel.getWidth());
-        //window.repaint(panel2.getX(),panel2.getY(),panel2.getWidth(),panel2.getWidth());
+        //window.repaint(panel.getX(), panel.getY(), panel.getWidth(), panel.getWidth());
     }
 
-    public Habitat() {
+    public Habitat(int P1, int P2, int T1, int T2) {
+        this.P1 = P1;
+        this.P2 = P2;
+        N1 = T1;
+        N2 = T2;
         window = new Window(this);
-        window.addWindow();
-        window.setLayout(null);
+        window.setLayout(new BorderLayout());
+
         WoodenHouse.SetImage();
         CapitalHouse.SetImage();
 
@@ -112,47 +84,43 @@ public class Habitat {
                 countOfWoodenHouses,
                 i));
         panel2.add(area, BorderLayout.NORTH);
-        panel.setBounds(0, 0, 300, 30);
-        panel2.setBounds(0, window.getHeight() - area.getHeight(), 250, area.getHeight());
-        window.add(panel);
-        window.add(panel2);
+        //panel.setBounds(0, 0, 300, 30);
+        //panel2.setBounds(0, window.getHeight() - area.getHeight(), 250, area.getHeight());
+        window.add(panel, BorderLayout.NORTH);
+        window.add(panel2, BorderLayout.SOUTH);
         window.validate();
-        //window.paint(window.getGraphics());
     }
 
     private void AddHouse(House tmp) {
-        SingleVector.add(tmp);
-        window.add(tmp);
-        //window.update(window.getGraphics());
-        tmp.Draw(window.getGraphics());
-
+        SingleVector.getSingleVector().add(tmp);
+        //tmp.Draw(window.getContentPane().getGraphics());
+       // window.repaint();
         i++;
     }
 
 
     public void Update(double workTime, double frameTime) {
-        panel2.setBounds(0, window.getHeight() - area.getHeight() - 40, 250, area.getHeight());
+
+        //panel2.setBounds(0, window.getHeight() - area.getHeight() - 40, 250, area.getHeight());
         area.setText(String.format("Количество капитальных домов: %d\nколичество деревянных домов: %d\nвсего домов: %d",
                 countOfCapitalHouses,
                 countOfWoodenHouses,
                 i));
-        label.setText(String.format("Время с начала работы %f", workTime + WORK_TIME));
-        label2.setText(String.format("Время обновления %f", frameTime));
+        label.setText(String.format("Время с начала работы %.2f", workTime + WORK_TIME));
+        label2.setText(String.format("Время обновления %.2f", frameTime));
 
+        window.repaint();
     }
 
     public void EndSimulation() {
         myTimer.cancel();
         isRun = false;
-
-        window.clear();
-        SingleVector.getVector().clear();
+        SingleVector.getSingleVector().clear();
         countOfWoodenHouses = 0;
         countOfCapitalHouses = 0;
         WORK_TIME = 0;
         i = 0;
     }
-
 
     public void PauseSimulation() {
         myTimer.cancel();
@@ -165,8 +133,6 @@ public class Habitat {
     }
 
     public class Updater extends TimerTask {
-
-        // Первый ли запуск метода run()?
         private boolean m_firstRun = true;
 
         @Override
@@ -176,7 +142,29 @@ public class Habitat {
                 END_TIME = START_TIME;
                 m_firstRun = false;
             }
+            Random r = new Random();
             long currentTime = System.currentTimeMillis();
+            if (currentTime - LAST_CAP_TIME > N1) {
+                LAST_CAP_TIME = currentTime;
+                House tmp = capitalFactory.Generate(P1);
+                if (tmp != null) {
+                    countOfCapitalHouses++;
+                    tmp.SetX(r.nextInt(window.getWidth() - tmp.GetWidth() * 2) + tmp.GetWidth());
+                    tmp.SetY(r.nextInt(window.getHeight() - tmp.GetHeight() * 2) + tmp.GetHeight());
+                    AddHouse(tmp);
+                }
+            }
+
+            if (currentTime - LAST_WOOD_TIME > N2) {
+                LAST_WOOD_TIME = currentTime;
+                House tmp = woodenFactory.Generate(P2);
+                if (tmp != null) {
+                    countOfCapitalHouses++;
+                    tmp.SetX(r.nextInt(window.getWidth() - tmp.GetWidth() * 2) + tmp.GetWidth());
+                    tmp.SetY(r.nextInt(window.getHeight() - tmp.GetHeight() * 2) + tmp.GetHeight());
+                    AddHouse(tmp);
+                }
+            }
             // Время, прошедшее от начала, в секундах
             double elapsed = (currentTime - START_TIME) / 1000.0;
             // Время, прошедшее с последнего обновления, в секундах
@@ -185,8 +173,5 @@ public class Habitat {
             Update(elapsed, frameTime);
             END_TIME = currentTime;
         }
-
     }
 }
-
-

@@ -2,12 +2,13 @@ package com.company;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
 public class WoodenHouse extends House {
-    private static Image img;
+    private static BufferedImage img;
     public static int count;
     WoodenHouse() {
         x = 0;
@@ -19,11 +20,7 @@ public class WoodenHouse extends House {
         this.y = y;
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        g.drawImage(img, x, y, null);
-    }
+
 
     public static void SetImage() {
         try {

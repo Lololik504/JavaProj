@@ -13,8 +13,6 @@ public class CapitalFactory implements AbstractFactory {
     }
 
     private static int func(int P) {
-        Random r = new Random();
-
         if (Math.random()*100 < P) {
             return 1;
         } else return 2;

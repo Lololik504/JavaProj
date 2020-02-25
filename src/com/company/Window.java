@@ -11,21 +11,31 @@ import java.util.Vector;
 
 public class Window extends JFrame {
     public Habitat habit;
+    public MainPanel mainPanel = new MainPanel();
     private int winWidth = 900;
     private int winHeight = 600;
-
 
     public Window(Habitat habitat) {
         super("Laba 1");
         habit = habitat;
+        addWindow();
         AddWindowListener();
     }
 
+    class MainPanel extends JPanel {
+        JPanel panelForLabels = new JPanel();
+        JPanel panelForButtons = new JPanel();
+        JButton stopButton = new JButton();
+        JButton startButton = new JButton();
+        JButton confirmButton = new JButton();
+        public void MainPanel() {
+
+        }
+    }
 
     public void addWindow() {
         this.setSize(new Dimension(winWidth, winHeight));
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        // this.setPreferredSize(new Dimension(winWidth, winHeight));
         this.setMinimumSize(new Dimension(300, 300));
         this.setVisible(true);
     }
@@ -37,22 +47,13 @@ public class Window extends JFrame {
     @Override
     public synchronized void paint(Graphics g) {
         super.paint(g);
-        for (House house : SingleVector.getVector()) {
-            house.Draw(g);
-        }
+        Image buff;
+        buff = createImage(getWidth(),getHeight());
+        Graphics BufferGraphics = buff.getGraphics();
+        SingleVector.getSingleVector().drawHouses(BufferGraphics);
+        g.drawImage(buff,0,0,null);
     }
 
-//    @Override
-//    public synchronized void repaint() {
-//        super.repaint();
-//    }
-
-    public synchronized void clear() {
-        for (House house : SingleVector.getVector()) {
-            this.remove(house);
-        }
-        this.repaint();
-    }
     private void AddWindowListener() {
         this.addKeyListener(new KeyAdapter() {
 
@@ -79,6 +80,9 @@ public class Window extends JFrame {
                     case KeyEvent.VK_T:
                         habit.ShowOrHide();
                         System.out.println("T is Pressed");
+                        break;
+                    case KeyEvent.VK_ESCAPE:
+                        System.exit(0);
                         break;
                     default:
                         System.out.println(e.getKeyChar() + " is Pressed");
