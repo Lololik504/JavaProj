@@ -12,13 +12,12 @@ public class Habitat {
     class PanelForImages extends JPanel {
         @Override
         protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
             SingleVector.getSingleVector().drawHouses(g);
         }
     }
 
     PanelForImages panelForImages = new PanelForImages();
-    private JPanel panel = new JPanel();
-    private JPanel panel2 = new JPanel();
     private JLabel runTimeLabel = new JLabel();
     private JLabel updateTimeLabel = new JLabel();
     private JLabel woodHousesLabel = new JLabel();
@@ -31,7 +30,6 @@ public class Habitat {
     private int N2 = 100;
     private int N1 = 100;
 
-    //private Graphics g;
     private CapitalFactory capitalFactory = new CapitalFactory();
     private WoodenFactory woodenFactory = new WoodenFactory();
 
@@ -54,17 +52,6 @@ public class Habitat {
         myTimer.schedule(new Updater(), 0, 20);
     }
 
-    public void ShowOrHide() {
-        if (panel.isVisible()) {
-            panel.setVisible(false);
-            panel2.setVisible(false);
-        } else {
-            panel.setVisible(true);
-            panel2.setVisible(true);
-        }
-
-    }
-
     public Habitat(int P1, int P2, int T1, int T2) {
         this.P1 = P1;
         this.P2 = P2;
@@ -82,18 +69,18 @@ public class Habitat {
         capitalHousesLabel.setText("Количество капитальных домов: 0");
         totalHousesLabel.setText("Всего домов: 0");
 
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panelForImages.setFocusable(false);
+        panelForImages.setVisible(true);
 
-        panel.add(runTimeLabel);
-        panel.add(updateTimeLabel);
-        panel.add(woodHousesLabel);
-        panel.add(capitalHousesLabel);
-        panel.add(totalHousesLabel);
-
-//        window.add(panel, BorderLayout.NORTH);
-//        panelForImages.setVisible(true);
-//        window.add(panelForImages);
+        window.mainPanel.addLabel(runTimeLabel);
+        window.mainPanel.addLabel(updateTimeLabel);
+        window.mainPanel.addLabel(woodHousesLabel);
+        window.mainPanel.addLabel(capitalHousesLabel);
+        window.mainPanel.addLabel(totalHousesLabel);
+        window.add(panelForImages);
+        //window.add(runTimeLabel);
         window.validate();
+        window.repaint();
     }
 
     private void AddHouse(House tmp) {

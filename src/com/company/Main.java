@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
-       Habitat Habit = new Habitat(10,20,100,100);
+       Habitat Habit = new Habitat(50,70,100,100);
 
     }
 }
