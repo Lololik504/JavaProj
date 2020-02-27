@@ -1,5 +1,7 @@
 package com.company;
 
+import javafx.scene.layout.GridPane;
+
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
@@ -17,16 +19,64 @@ public class Window extends JFrame {
         JPanel panelForLabels = new JPanel();
         JPanel panelForButtons = new JPanel();
         JPanel PANEL = new JPanel();
+        JPanel panelForControls = new JPanel();
         JButton stopButton = new JButton("STOP");
         JButton startButton = new JButton("START");
         JButton confirmButton = new JButton("CONFIRM");
-        JButton HideButton = new JButton("HIDE");
+        JButton hideButton = new JButton("HIDE");
+        JSlider slider = new JSlider(0, 100, 50);
+        JComboBox comboBox = new JComboBox();
+
+        private void setFocus() {
+            stopButton.setFocusable(false);
+            startButton.setFocusable(false);
+            confirmButton.setFocusable(false);
+            hideButton.setFocusable(false);
+            slider.setFocusable(false);
+            comboBox.setFocusable(false);
+        }
+
+        private void ButtonsListeners() {
+            stopButton.addActionListener(e -> {
+                if (habit.isRun())
+                    EndSimulation();
+            });
+            startButton.addActionListener(e -> {
+                if (!habit.isRun()) {
+                    StartSimulation();
+                }
+            });
+            hideButton.addActionListener(e -> {
+                ShowOrHide();
+            });
+            confirmButton.addActionListener(e -> {
+                habit.setP1(slider.getValue());
+                //System.out.println(comboBox.getSelectedItem());
+                Object object = new Object();
+                habit.setP2(Integer.parseInt((String) comboBox.getSelectedItem()));
+            });
+        }
+
+
+
+        private void SliderOptions() {
+            slider.setName("P1");
+            slider.setMajorTickSpacing(20);
+            slider.setMinorTickSpacing(5);
+            slider.setPaintTicks(true);
+            slider.setPaintLabels(true);
+        }
 
         public MainPanel() {
             super();
+            setOpaque(false);
+            panelForLabels.setOpaque(false);
+            panelForButtons.setOpaque(false);
+            panelForControls.setOpaque(false);
+            PANEL.setOpaque(false);
+            setFocus();
             this.setLayout(new BorderLayout());
             panelForLabels.setLayout(new BoxLayout(panelForLabels, BoxLayout.Y_AXIS));
-            //panelForLabels.setSize(300,200);
             GridBagLayout gbl = new GridBagLayout();
             panelForButtons.setLayout(gbl);
             GridBagConstraints c = new GridBagConstraints();
@@ -45,57 +95,88 @@ public class Window extends JFrame {
 
             c.gridy = 1;
             c.gridx = 0;
-            gbl.setConstraints(HideButton, c);
-            panelForButtons.add(HideButton);
+            gbl.setConstraints(hideButton, c);
+            panelForButtons.add(hideButton);
 
             c.gridy = 1;
             c.gridx = 1;
             gbl.setConstraints(confirmButton, c);
             panelForButtons.add(confirmButton);
-            stopButton.addActionListener(e -> {
-                if (habit.isRun())
-                    habit.EndSimulation();
-            });
-            startButton.addActionListener(e -> {
-                if (!habit.isRun()) {
-                    habit.StartSimulation();
-                }
-            });
-            PANEL.setLayout(new GridLayout(3,1));
-            PANEL.add(panelForLabels);
-            PANEL.add(panelForButtons);
-            add(PANEL,BorderLayout.WEST);
+            ButtonsListeners();
+
+            panelForControls.setLayout(new BoxLayout(panelForControls, BoxLayout.Y_AXIS));
+            panelForControls.add(new JLabel("P1"));
+            panelForControls.add(slider);
+            panelForControls.add(Box.createRigidArea(new Dimension(0,20)));
+            panelForControls.add(new JLabel("P2"));
+            panelForControls.add(comboBox);
+            panelForControls.add(Box.createRigidArea(new Dimension(0,5)));
+            ComboBoxOptions();
+            SliderOptions();
+
+            PANEL.setLayout(new BorderLayout());
+            GridBagConstraints p = new GridBagConstraints();
+            {
+                JPanel NORTHWEST = new JPanel();
+                NORTHWEST.setLayout(new GridBagLayout());
+                PANEL.add(NORTHWEST,BorderLayout.NORTH);
+
+                p.gridx = 0;
+                p.gridy = GridBagConstraints.RELATIVE;
+                NORTHWEST.add(panelForLabels,p);
+                p.ipady = 150;
+                NORTHWEST.add(panelForButtons,p);
+                p.ipady = 150;
+                NORTHWEST.add(panelForControls,p);
+            }
+
+
+            add(PANEL, BorderLayout.WEST);
+
         }
+
+        private void ComboBoxOptions() {
+            for (int i = 0; i <= 100; i+=5)
+            comboBox.addItem(String.format("%d",i));
+            comboBox.setEditable(true);
+            comboBox.setSelectedItem("50");
+            comboBox.setMaximumSize(new Dimension(500,20));
+        }
+
 
         public void addLabel(JLabel label) {
             panelForLabels.add(label);
         }
     }
 
+    private void EndSimulation (){
+        mainPanel.stopButton.setEnabled(false);
+        mainPanel.startButton.setEnabled(true);
+        habit.EndSimulation();
+    }
+
+    private void StartSimulation(){
+        mainPanel.startButton.setEnabled(false);
+        mainPanel.stopButton.setEnabled(true);
+        habit.StartSimulation();
+    }
+
     public Window(Habitat habitat) {
         super("Laba 1");
-
-
         this.setLayout(new BorderLayout());
         habit = habitat;
         addWindow();
         mainPanel = new MainPanel();
-        getContentPane().add(mainPanel);
+        add(mainPanel);
         AddWindowListener();
         paintAll(getGraphics());
     }
 
-//    @Override
-//    public void paint(Graphics g) {
-//        super.paint(g);
-//    }
-
-
     public void ShowOrHide() {
-        if (mainPanel.isVisible()) {
-            mainPanel.setVisible(false);
+        if (mainPanel.PANEL.isVisible()) {
+            mainPanel.PANEL.setVisible(false);
         } else {
-            mainPanel.setVisible(true);
+            mainPanel.PANEL.setVisible(true);
         }
 
     }
@@ -115,12 +196,12 @@ public class Window extends JFrame {
                     case KeyEvent.VK_E:
                         System.out.println("E is Pressed");
                         if (habit.isRun())
-                            habit.EndSimulation();
+                            EndSimulation();
                         break;
                     case KeyEvent.VK_B:
                         System.out.println("B is Pressed");
                         if (!habit.isRun()) {
-                            habit.StartSimulation();
+                            StartSimulation();
                         }
                         break;
                     case KeyEvent.VK_P:
@@ -154,6 +235,16 @@ public class Window extends JFrame {
                 }
             }
         });
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                super.componentResized(e);
+                Resized();
+            }
+        });
+    }
 
+    public void Resized() {
+        mainPanel.setSize(getWidth(), getHeight());
     }
 }

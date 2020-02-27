@@ -9,7 +9,18 @@ import java.util.Timer;
 import static java.lang.String.*;
 
 public class Habitat {
+    public void setP1(int value) {
+        P1 = value;
+    }
+
+    public void setP2(int value) {
+        P2 = value;
+    }
+
     class PanelForImages extends JPanel {
+        public PanelForImages(){
+            super();
+        }
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -77,7 +88,8 @@ public class Habitat {
         window.mainPanel.addLabel(woodHousesLabel);
         window.mainPanel.addLabel(capitalHousesLabel);
         window.mainPanel.addLabel(totalHousesLabel);
-        window.add(panelForImages);
+        window.mainPanel.add(panelForImages,BorderLayout.CENTER);
+        //window.add(panelForImages,BorderLayout.CENTER);
         //window.add(runTimeLabel);
         window.validate();
         window.repaint();
@@ -101,6 +113,7 @@ public class Habitat {
         myTimer.cancel();
         isRun = false;
         SingleVector.getSingleVector().clear();
+        window.repaint();
         countOfWoodenHouses = 0;
         countOfCapitalHouses = 0;
         WORK_TIME = 0;
