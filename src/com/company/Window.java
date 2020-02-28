@@ -123,10 +123,21 @@ public class Window extends JFrame {
                 habit.setP1(slider.getValue());
                 try {
                     habit.setP2(Integer.parseInt((String) comboBox.getSelectedItem()));
-                    habit.setN1(Integer.parseInt(textAreaN1.getText()));
-                    habit.setN2(Integer.parseInt(textAreaN2.getText()));
+                    Exception ex = new Exception("N1 and N2 can't be lower then 10 msec");
+                    int msec = Integer.parseInt(textAreaN1.getText());
+                    if (msec < 10) {
+                        throw ex;
+                    }
+                    habit.setN1(msec);
+                    msec = Integer.parseInt(textAreaN2.getText());
+                    if (msec < 10) {
+                        throw ex;
+                    }
+                    habit.setN2(msec);
                     System.out.println("Success");
                 } catch (NumberFormatException ex) {
+                    dialogError(ex);
+                }catch (Exception ex){
                     dialogError(ex);
                 }
             });
@@ -186,11 +197,11 @@ public class Window extends JFrame {
             panelForControls.add(comboBox);
             panelForControls.add(Box.createRigidArea(new Dimension(0, 5)));
             panelForControls.add(new JLabel("N1 (мс)"));
-            textAreaN1.setBorder(BorderFactory.createLineBorder(Color.black,1));
+            textAreaN1.setBorder(BorderFactory.createLineBorder(Color.black, 1));
             panelForControls.add(textAreaN1);
             panelForControls.add(Box.createRigidArea(new Dimension(0, 5)));
             panelForControls.add(new JLabel("N2 (мс)"));
-            textAreaN2.setBorder(BorderFactory.createLineBorder(Color.black,1));
+            textAreaN2.setBorder(BorderFactory.createLineBorder(Color.black, 1));
             panelForControls.add(textAreaN2);
         }
 
@@ -248,6 +259,8 @@ public class Window extends JFrame {
         habit = habitat;
         addWindow();
         mainPanel = new MainPanel();
+        mainPanel.stopButton.setEnabled(false);
+        itemStop.setEnabled(false);
         add(mainPanel);
         menuInit();
         Listeners();
@@ -311,6 +324,7 @@ public class Window extends JFrame {
             });
             panelForButtons.setLayout(new GridBagLayout());
             GridBagConstraints c = new GridBagConstraints();
+            c.insets = new Insets(0,5,0,5);
             c.gridy = 0;
             c.gridx = 0;
             panelForButtons.add(OKdialogButton, c);
@@ -324,7 +338,7 @@ public class Window extends JFrame {
             Top.add(info);
             message.setAlignmentX(0.5f);
             Top.add(message);
-            Top.add(Box.createRigidArea(new Dimension(0, 20)));
+            Top.add(Box.createRigidArea(new Dimension(0, 10)));
             Top.add(panelForButtons);
 
             dialog.add(Top);
