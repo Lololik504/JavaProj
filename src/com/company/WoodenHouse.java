@@ -6,13 +6,21 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
+import java.util.Set;
 
 public class WoodenHouse extends House {
     private static Image img;
-    public static int count;
+    private static int count;
+
+
+
     WoodenHouse() {
         x = 0;
         y = 0;
+    }
+
+    public static void incrementCount(){
+        count++;
     }
 
     WoodenHouse(int x, int y) {
@@ -20,7 +28,17 @@ public class WoodenHouse extends House {
         this.y = y;
     }
 
+    static {
+        SetImage();
+    }
 
+    public static void clearCount(){
+        count = 0;
+    }
+
+    public static int getCount() {
+        return count;
+    }
 
     public static void SetImage() {
         try {
@@ -48,7 +66,7 @@ public class WoodenHouse extends House {
 
     @Override
     public void Draw(Graphics g) {
-        g.drawImage(img,x,y,null);
+        g.drawImage(img, x, y, null);
     }
 
     @Override

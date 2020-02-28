@@ -9,10 +9,18 @@ import java.util.Random;
 
 public class CapitalHouse extends House {
     private static Image img;
-    public static int count;
+    private static int count;
     CapitalHouse() {
         x = 0;
         y = 0;
+    }
+
+    static{
+        SetImage();
+    }
+
+    public static void incrementCount(){
+        count++;
     }
 
     static public void SetImage (){
@@ -23,13 +31,18 @@ public class CapitalHouse extends House {
         }
     }
 
+    public static int getCount(){
+        return count;
+    }
+
     CapitalHouse(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-
-
+    public static void clearCount(){
+        count = 0;
+    }
 
     public int GetWidth() {
         return img.getWidth(null);

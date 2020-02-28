@@ -13,6 +13,14 @@ public class Habitat {
         P1 = value;
     }
 
+    public void setN2(int n2) {
+        N2 = n2;
+    }
+
+    public void setN1(int n1) {
+        N1 = n1;
+    }
+
     public void setP2(int value) {
         P2 = value;
     }
@@ -29,11 +37,7 @@ public class Habitat {
     }
 
     PanelForImages panelForImages = new PanelForImages();
-    private JLabel runTimeLabel = new JLabel();
-    private JLabel updateTimeLabel = new JLabel();
-    private JLabel woodHousesLabel = new JLabel();
-    private JLabel capitalHousesLabel = new JLabel();
-    private JLabel totalHousesLabel = new JLabel();
+
     private Window window;
 
     private int P1 = 5;
@@ -53,8 +57,6 @@ public class Habitat {
     private double WORK_TIME = 0;
     private Timer myTimer;
 
-    private int countOfWoodenHouses = 0;
-    private int countOfCapitalHouses = 0;
     private static final long serialVersionUID = 1L;
 
     public void StartSimulation() {
@@ -71,23 +73,9 @@ public class Habitat {
         window = new Window(this);
         window.setLayout(new BorderLayout());
 
-        WoodenHouse.SetImage();
-        CapitalHouse.SetImage();
-
-        runTimeLabel.setText("Время с начала работы 0");
-        updateTimeLabel.setText("Время обновления 0");
-        woodHousesLabel.setText("Количество деревянных домов: 0");
-        capitalHousesLabel.setText("Количество капитальных домов: 0");
-        totalHousesLabel.setText("Всего домов: 0");
-
         panelForImages.setFocusable(false);
         panelForImages.setVisible(true);
 
-        window.mainPanel.addLabel(runTimeLabel);
-        window.mainPanel.addLabel(updateTimeLabel);
-        window.mainPanel.addLabel(woodHousesLabel);
-        window.mainPanel.addLabel(capitalHousesLabel);
-        window.mainPanel.addLabel(totalHousesLabel);
         window.mainPanel.add(panelForImages,BorderLayout.CENTER);
         //window.add(panelForImages,BorderLayout.CENTER);
         //window.add(runTimeLabel);
@@ -102,22 +90,25 @@ public class Habitat {
 
     public void Update(double workTime, double frameTime) {
         window.repaint();
-        runTimeLabel.setText(format("Время с начала работы %.2f", workTime + WORK_TIME));
-        updateTimeLabel.setText(format("Время обновления %.2f", frameTime));
-        woodHousesLabel.setText(format("Количество деревянных домов: %d", countOfWoodenHouses));
-        capitalHousesLabel.setText(format("Количество капитальных домов: %d", countOfCapitalHouses));
-        totalHousesLabel.setText(format("Всего домов: %d", i));
+        WORK_TIME = workTime;
+        window.updateLabels(frameTime);
     }
 
     public void EndSimulation() {
         myTimer.cancel();
         isRun = false;
+        window.mainPanel.list1.removeAll();
+        window.mainPanel.list2.removeAll();
         SingleVector.getSingleVector().clear();
         window.repaint();
-        countOfWoodenHouses = 0;
-        countOfCapitalHouses = 0;
+        WoodenHouse.clearCount();
+        CapitalHouse.clearCount();
         WORK_TIME = 0;
         i = 0;
+    }
+
+    public double getWORK_TIME() {
+        return WORK_TIME;
     }
 
     public void PauseSimulation() {
@@ -140,15 +131,18 @@ public class Habitat {
                 END_TIME = START_TIME;
                 m_firstRun = false;
             }
+
             Random r = new Random();
             long currentTime = System.currentTimeMillis();
+            double elapsed = (currentTime - START_TIME) / 1000.0;
             if (currentTime - LAST_CAP_TIME > N1) {
                 LAST_CAP_TIME = currentTime;
                 House tmp = capitalFactory.Generate(P1);
                 if (tmp != null) {
-                    countOfCapitalHouses++;
+                    CapitalHouse.incrementCount();
                     tmp.SetX(r.nextInt(window.getWidth() - tmp.GetWidth() * 2));
                     tmp.SetY(r.nextInt(window.getHeight() - tmp.GetHeight() * 2));
+                    window.mainPanel.list2.add(String.valueOf(elapsed));
                     AddHouse(tmp);
                 }
             }
@@ -157,14 +151,14 @@ public class Habitat {
                 LAST_WOOD_TIME = currentTime;
                 House tmp = woodenFactory.Generate(P2);
                 if (tmp != null) {
-                    countOfWoodenHouses++;
+                    WoodenHouse.incrementCount();
                     tmp.SetX(r.nextInt(window.getWidth() - tmp.GetWidth() * 2));
                     tmp.SetY(r.nextInt(window.getHeight() - tmp.GetHeight() * 2));
+                    window.mainPanel.list1.add(String.valueOf(elapsed));
                     AddHouse(tmp);
                 }
             }
             // Время, прошедшее от начала, в секундах
-            double elapsed = (currentTime - START_TIME) / 1000.0;
             // Время, прошедшее с последнего обновления, в секундах
             double frameTime = (currentTime - END_TIME) / 1000.0;
             // Вызываем обновление
