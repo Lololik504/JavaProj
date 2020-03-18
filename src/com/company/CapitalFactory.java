@@ -5,9 +5,10 @@ import java.util.Random;
 public class CapitalFactory implements AbstractFactory {
 
     @Override
-    public House Generate(int P) {
+    public House Generate(int P, double LT) {
         if (func(P) == 1) {
-            return new CapitalHouse();
+            double DT = Math.random()*5+5;
+            return new CapitalHouse(LT, DT);
         } else
             return null;
     }

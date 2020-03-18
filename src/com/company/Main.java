@@ -6,7 +6,8 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
-       Habitat Habit = new Habitat(50,70,100,100);
+        JFrame.setDefaultLookAndFeelDecorated(true);
+       Habitat Habit = new Habitat(50,70,1000,1000);
 
     }
 }

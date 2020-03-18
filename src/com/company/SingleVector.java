@@ -7,7 +7,8 @@ public class SingleVector {
     private static SingleVector singleVector;
     private static Vector<House> vector = new Vector<>();
 
-    private SingleVector(){}
+    private SingleVector() {
+    }
 
     public static synchronized SingleVector getSingleVector() {
         if (singleVector == null)
@@ -15,11 +16,34 @@ public class SingleVector {
         return singleVector;
     }
 
-    public void add(House house){
+    public void RIP(Habitat habit) {
+        try {
+            for (House house : vector) {
+                float BT = house.GetBornTime();
+                float DT = house.GetDeathTime();
+                double WT = habit.getWORK_TIME();
+                if (BT + DT < WT) {
+                    vector.remove(house);
+                    habit.intSet.remove(house.GetId());
+                    habit.BornTimeTree.remove(house.GetId());
+                    habit.UpdateHashSet();
+                    if (house instanceof CapitalHouse)
+                        CapitalHouse.decrementCount();
+                    else WoodenHouse.decrementCount();
+                }
+            }
+        }
+        catch (Exception ex) {
+            System.out.println(ex.getStackTrace());
+        }
+
+    }
+
+    public void add(House house) {
         vector.addElement(house);
     }
 
-    public void clear(){
+    public void clear() {
         vector.removeAllElements();
     }
 

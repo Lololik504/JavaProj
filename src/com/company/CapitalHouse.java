@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Random;
 
 public class CapitalHouse extends House {
+    private int id;
     private static Image img;
     private static int count;
     CapitalHouse() {
@@ -19,8 +20,18 @@ public class CapitalHouse extends House {
         SetImage();
     }
 
+    CapitalHouse(double LT, double DT) {
+        TotalID++;
+        id = TotalID;
+        this.bornTime = (float)LT;
+        this.deathTime = (float)DT;
+    }
+
     public static void incrementCount(){
         count++;
+    }
+    public static void decrementCount(){
+        count--;
     }
 
     static public void SetImage (){
@@ -33,11 +44,6 @@ public class CapitalHouse extends House {
 
     public static int getCount(){
         return count;
-    }
-
-    CapitalHouse(int x, int y) {
-        this.x = x;
-        this.y = y;
     }
 
     public static void clearCount(){
@@ -67,5 +73,18 @@ public class CapitalHouse extends House {
         return img.getHeight(null);
     }
 
+    @Override
+    public int GetId() {
+        return id;
+    }
 
+    @Override
+    public float GetBornTime() {
+        return bornTime;
+    }
+
+    @Override
+    public float GetDeathTime() {
+        return deathTime;
+    }
 }

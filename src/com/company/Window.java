@@ -16,8 +16,6 @@ public class Window extends JFrame {
     private JMenuItem itemStop = new JMenuItem("Stop");
     private JMenuItem itemHideOrShow = new JMenuItem("Hide/Show");
     public MainPanel mainPanel;
-    private int winWidth = 900;
-    private int winHeight = 600;
 
     class MainPanel extends JPanel {
         public JLabel runTimeLabel = new JLabel("Время с начала работы 0");
@@ -54,7 +52,7 @@ public class Window extends JFrame {
             ComboBoxOptions();
             SliderOptions();
             panelLeft.setLayout(new BorderLayout());
-            panelLeft.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+            panelLeft.setBorder(BorderFactory.createTitledBorder("MENU"));
             //panelLeft.setSize(panelLeft.getWidth(), 600);
             GridBagConstraints p = new GridBagConstraints();
             {
@@ -137,7 +135,7 @@ public class Window extends JFrame {
                     System.out.println("Success");
                 } catch (NumberFormatException ex) {
                     dialogError(ex);
-                }catch (Exception ex){
+                } catch (Exception ex) {
                     dialogError(ex);
                 }
             });
@@ -228,8 +226,9 @@ public class Window extends JFrame {
     }
 
     private void dialogError(Exception ex) {
-        JDialog dialog = new JDialog();
+        JDialog dialog = new JDialog(this, true);
         dialog.setSize(new Dimension(400, 200));
+        dialog.setLocation(this.getX() + 20, this.getY() + 20);
         dialog.setLayout(new BorderLayout());
         JLabel error = new JLabel("ERROR: " + ex.getMessage());
         JPanel Top = new JPanel();
@@ -253,18 +252,17 @@ public class Window extends JFrame {
         System.out.println(ex);
     }
 
-    public Window(Habitat habitat) {
+    public Window(Habitat habitat, int winWidth, int winHeight) {
         super("Laba 1");
         this.setLayout(new BorderLayout());
         habit = habitat;
-        addWindow();
+        addWindow(winWidth, winHeight);
         mainPanel = new MainPanel();
         mainPanel.stopButton.setEnabled(false);
         itemStop.setEnabled(false);
         add(mainPanel);
         menuInit();
         Listeners();
-
         paintAll(getGraphics());
     }
 
@@ -298,7 +296,8 @@ public class Window extends JFrame {
     private void EndSimulation() {
         if (!habit.isRun()) return;
         if (mainPanel.isGetInfo.isSelected()) {
-            JDialog dialog = new JDialog();
+            habit.PauseSimulation();
+            JDialog dialog = new JDialog(this,true);
             dialog.setSize(new Dimension(400, 200));
             dialog.setLayout(new BorderLayout());
             JLabel message = new JLabel("Остановить симуляцию?");
@@ -314,6 +313,7 @@ public class Window extends JFrame {
             JButton OKdialogButton = new JButton("OK");
             JButton CanceldialogButton = new JButton("Отмена");
             CanceldialogButton.addActionListener(e -> {
+                habit.StartSimulation();
                 dialog.dispose();
                 return;
             });
@@ -324,7 +324,7 @@ public class Window extends JFrame {
             });
             panelForButtons.setLayout(new GridBagLayout());
             GridBagConstraints c = new GridBagConstraints();
-            c.insets = new Insets(0,5,0,5);
+            c.insets = new Insets(0, 5, 0, 5);
             c.gridy = 0;
             c.gridx = 0;
             panelForButtons.add(OKdialogButton, c);
@@ -371,10 +371,11 @@ public class Window extends JFrame {
         }
     }
 
-    public void addWindow() {
+    public void addWindow(int winWidth, int winHeight) {
         this.setSize(new Dimension(winWidth, winHeight));
+        this.setLocation(20, 20);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.setMinimumSize(new Dimension(300, 300));
+        this.setMinimumSize(new Dimension(600, 450));
         this.setVisible(true);
     }
 
@@ -443,6 +444,6 @@ public class Window extends JFrame {
     }
 
     public void Resized() {
-        mainPanel.setSize(getWidth(), getHeight() - 40 - menuBar.getHeight());
+        mainPanel.setSize(getWidth(), getHeight() - 42 - menuBar.getHeight());
     }
 }

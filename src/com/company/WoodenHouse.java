@@ -9,24 +9,25 @@ import java.util.Random;
 import java.util.Set;
 
 public class WoodenHouse extends House {
+    private int id;
+
     private static Image img;
     private static int count;
 
-
-
-    WoodenHouse() {
-        x = 0;
-        y = 0;
+    WoodenHouse(double LT, double DT) {
+        TotalID++;
+        id = TotalID;
+        this.bornTime = (float)LT;
+        this.deathTime = (float)DT;
     }
 
     public static void incrementCount(){
         count++;
     }
-
-    WoodenHouse(int x, int y) {
-        this.x = x;
-        this.y = y;
+    public static void decrementCount(){
+        count--;
     }
+
 
     static {
         SetImage();
@@ -72,5 +73,20 @@ public class WoodenHouse extends House {
     @Override
     public int GetHeight() {
         return img.getHeight(null);
+    }
+
+    @Override
+    public int GetId() {
+        return id;
+    }
+
+    @Override
+    public float GetBornTime() {
+        return bornTime;
+    }
+
+    @Override
+    public float GetDeathTime() {
+        return deathTime;
     }
 }

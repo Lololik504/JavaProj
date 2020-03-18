@@ -4,9 +4,10 @@ import java.util.Random;
 
 public class WoodenFactory implements AbstractFactory {
     @Override
-    public House Generate(int P) {
+    public House Generate(int P, double LT) {
         if (func(P) == 1) {
-            return new WoodenHouse();
+            double DT = Math.random()*3+3;
+            return new WoodenHouse(LT, DT);
         } else
             return null;
     }
